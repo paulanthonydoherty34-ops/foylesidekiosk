@@ -1,1 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foyleside Shopping Centre — Store Directory</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   FOYLESIDE SHOPPING CENTRE — TOUCH SCREEN DIRECTORY
+   Resolution: 2160 × 3840px portrait (9:16)
+   Format: Self-contained H5 / HTML5
+   Version: 4.0 FINAL
+═══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+:root {
+  --brand:       #293945;
+  --brand-dk:    #1b2830;
+  --brand-md:    #344d5e;
+  --brand-lt:    #4e6a82;
+  --gold:        #c9a84c;
+  --gold-lt:     #e8c87a;
+  --gold-dk:     #a07828;
+  --gold-dim:    rgba(201,168,76,0.18);
+  --gold-glow:   rgba(201,168,76,0.07);
+  --white:       #ffffff;
+  --dim:         rgba(255,255,255,0.58);
+  --muted:       rgba(255,255,255,0.32);
+  --ghost:       rgba(255,255,255,0.08);
+  --card:        rgba(255,255,255,0.055);
+  --card-b:      rgba(255,255,255,0.09);
+  --card-h:      rgba(255,255,255,0.12);
+  --overlay-bg:  rgba(18,28,36,0.94);
+  --green:       #7edaa0;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: #0d161e;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; font-family: 'Montserrat', sans-serif;
+}
+
+/* ── KIOSK SHELL ─────────────────────────────── */
+#kiosk {
+  width: 100vw;
+  height: 100vh;
+  background: var(--brand);
+  display: flex; flex-direction: column;
+  overflow: hidden; position: relative;
+}
+#kiosk::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% -5%,  rgba(201,168,76,0.13) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 5%  100%, rgba(42,64,90,0.55)   0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 100% 80%, rgba(30,50,68,0.4)    0%, transparent 55%);
+}
+#kiosk > * { position: relative; z-index: 1; }
+
+/* ── HEADER ──────────────────────────────────── */
+.hdr {
+  background: rgba(0,0,0,0.30);
+  border-bottom: 1px solid rgba(201,168,76,0.22);
+  padding: 2.2% 4.5% 1.8%;
+  flex-shrink: 0;
+}
+.hdr-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.6%; }
+
+.logo        { font-size: clamp(20px,3.5vw,52px); font-weight: 900; color: var(--white); letter-spacing: 3px; text-transform: uppercase; line-height: 1; }
+.logo-sub    { font-size: clamp(7px,1vw,13px); font-weight: 500; color: var(--gold); letter-spacing: 4px; text-transform: uppercase; margin-top: 4px; }
+
+.hdr-right   { text-align: right; }
+#clock       { font-size: clamp(18px,2.8vw,40px); font-weight: 700; color: var(--white); line-height: 1; }
+#dateline    { font-size: clamp(7px,0.85vw,11px); color: var(--dim); letter-spacing: 0.5px; margin-top: 4px; }
+
+.search-wrap {
+  display: flex; align-items: center; gap: 2%;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(201,168,76,0.28);
+  border-radius: 50px; padding: 1.3% 3%;
+  transition: background .2s, border-color .2s;
+}
+.search-wrap:focus-within { background: rgba(255,255,255,0.11); border-color: rgba(201,168,76,0.5); }
+.search-ic   { font-size: clamp(12px,1.6vw,20px); opacity: .65; flex-shrink: 0; }
+#searchInput {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-size: clamp(9px,1.2vw,16px); color: var(--white);
+  font-family: 'Montserrat', sans-serif; font-weight: 400; letter-spacing: 0.5px;
+}
+#searchInput::placeholder { color: rgba(255,255,255,0.38); }
+#searchClear {
+  display: none; align-items: center; justify-content: center;
+  width: clamp(22px,2.4vw,32px); height: clamp(22px,2.4vw,32px);
+  background: rgba(255,255,255,0.12); border: none; border-radius: 50%;
+  color: var(--white); font-size: clamp(9px,1.1vw,14px);
+  cursor: pointer; flex-shrink: 0; font-family: 'Montserrat', sans-serif;
+  transition: background .15s;
+}
+#searchClear.show { display: flex; }
+#searchClear:hover { background: rgba(255,255,255,0.22); }
+
+/* ── FLOOR TABS ──────────────────────────────── */
+.tabs {
+  display: flex;
+  background: rgba(0,0,0,0.22);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0; padding: 0 2%;
+}
+.tab {
+  flex: 1; padding: 2.4% 1%; text-align: center; cursor: pointer;
+  border-bottom: 3px solid transparent; transition: all .18s;
+  color: var(--muted); font-family: 'Montserrat', sans-serif;
+}
+.tab:hover  { color: rgba(255,255,255,0.75); }
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.tab-num    { display: block; font-size: clamp(14px,2.1vw,30px); font-weight: 900; line-height: 1.1; }
+.tab-lbl    { font-size: clamp(6px,0.85vw,11px); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+
+/* ── VIEW SWITCHER ───────────────────────────── */
+
+/* ── CATEGORY PILLS ──────────────────────────── */
+.pills-wrap {
+  display: flex; gap: 1.5%; padding: 1.4% 4.5% 0;
+  flex-shrink: 0; overflow-x: auto; scrollbar-width: none;
+}
+.pills-wrap::-webkit-scrollbar { display: none; }
+.pill {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 30px; padding: 1% 3.5%;
+  font-size: clamp(6.5px,0.9vw,12px); font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--dim); cursor: pointer;
+  transition: all .15s; white-space: nowrap; font-family: 'Montserrat', sans-serif;
+}
+.pill:hover  { background: rgba(201,168,76,0.1); border-color: rgba(201,168,76,0.35); color: var(--gold-lt); }
+.pill.active { background: rgba(201,168,76,0.17); border-color: var(--gold); color: var(--gold); }
+
+/* ── MAIN SCROLL ─────────────────────────────── */
+.main { flex: 1; overflow-y: auto; padding: 2% 4.5% 3%; scrollbar-width: none; }
+.main::-webkit-scrollbar { display: none; }
+
+/* ── TYPOGRAPHY ──────────────────────────────── */
+.flr-desc {
+  font-size: clamp(7px,0.9vw,12px); color: var(--gold-lt);
+  letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+  margin-bottom: 2.5%; padding-bottom: 1.8%;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.sec-lbl {
+  font-size: clamp(6px,0.82vw,11px); letter-spacing: 2.5px; color: var(--muted);
+  text-transform: uppercase; font-weight: 800;
+  margin: 2.8% 0 1.4%; padding-bottom: 1%;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── ANCHOR CARDS ────────────────────────────── */
+.anchors { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.8%; margin-bottom: 2.5%; }
+.anc-card {
+  background: rgba(201,168,76,0.09); border: 1px solid rgba(201,168,76,0.28);
+  border-radius: var(--r-md); padding: 3.8% 2.5%; text-align: center;
+  cursor: pointer; transition: all .15s;
+}
+.anc-card:hover, .anc-card:active { background: rgba(201,168,76,0.18); transform: scale(0.98); }
+.anc-name { font-size: clamp(8px,1.2vw,16px); font-weight: 800; color: var(--white); }
+.anc-tag  { font-size: clamp(6px,0.75vw,10px); color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; font-weight: 600; }
+
+/* ── STORE GRID ──────────────────────────────── */
+.store-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.8%; margin-bottom: 1%; }
+.s-card {
+  background: var(--card); border: 1px solid var(--card-b); border-radius: var(--r-md);
+  padding: 3.5% 3%; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: 5%;
+}
+.s-card:hover, .s-card:active { background: var(--card-h); border-color: rgba(255,255,255,0.2); transform: scale(0.99); }
+.s-ic {
+  width: clamp(32px,5%,56px); height: clamp(32px,5%,56px);
+  border-radius: var(--r-sm); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(13px,1.9vw,26px);
+}
+.s-info { flex: 1; min-width: 0; }
+.s-name { font-size: clamp(8px,1.2vw,16px); font-weight: 700; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-unit { font-size: clamp(6.5px,0.85vw,11px); color: var(--dim); margin-top: 2px; }
+.badge  { display: inline-block; font-size: clamp(6px,0.65vw,9px); padding: 2px 7px; border-radius: 20px; margin-top: 4px; letter-spacing: 0.5px; font-weight: 800; text-transform: uppercase; }
+.b-food   { background: rgba(201,168,76,0.2); color: var(--gold-lt); }
+.b-new    { background: rgba(126,218,160,0.18); color: #7edaa0; }
+.b-anchor { background: rgba(201,168,76,0.22); color: var(--gold); }
+
+/* ── TOILETS BLOCK ───────────────────────────── */
+.toilet-block {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-left: 3px solid rgba(201,168,76,0.5); border-radius: var(--r-sm);
+  padding: 2.5% 3%; margin-top: 2.5%;
+}
+.toilet-ttl   { font-size: clamp(6.5px,0.85vw,11px); font-weight: 800; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.5%; }
+.toilet-items { display: flex; gap: 1.5%; flex-wrap: wrap; }
+.toilet-item  { font-size: clamp(7px,0.9vw,12px); color: var(--dim); background: rgba(255,255,255,0.05); border-radius: 20px; padding: 1% 2.5%; white-space: nowrap; }
+
+/* ── FACILITIES GRID ─────────────────────────── */
+.facs { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5%; margin-top: 2%; }
+.fac  {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--r-sm); padding: 3% 1%; text-align: center; cursor: pointer;
+  transition: background .15s;
+}
+.fac:hover, .fac:active { background: rgba(255,255,255,0.1); }
+.fac-ic { font-size: clamp(14px,2.2vw,30px); display: block; margin-bottom: 5px; }
+.fac-n  { font-size: clamp(5.5px,0.78vw,10px); color: var(--muted); letter-spacing: 0.5px; font-weight: 600; }
+
+/* ── MAP VIEW ────────────────────────────────── */
+.map-wrap    { padding: 1% 0 3%; }
+.map-title   { font-size: clamp(9px,1.2vw,16px); font-weight: 700; color: var(--white); margin-bottom: 1.5%; }
+.map-svg-box {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--r-lg); overflow: hidden; padding: 3%;
+}
+.map-svg-box svg { width: 100%; height: auto; display: block; }
+.map-legend  { display: flex; gap: 3%; flex-wrap: wrap; margin: 1.5% 0 2.5%; }
+.leg-item    { display: flex; align-items: center; gap: 5%; font-size: clamp(6.5px,0.85vw,11px); color: var(--dim); }
+.leg-dot     { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+/* ── SEARCH RESULTS ──────────────────────────── */
+.sr-head    { font-size: clamp(7px,0.9vw,12px); color: var(--gold-lt); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; margin-bottom: 2%; }
+.sr-badge   { display: inline-block; font-size: clamp(6px,0.65vw,9px); background: rgba(201,168,76,0.2); color: var(--gold); padding: 2px 7px; border-radius: 20px; font-weight: 800; letter-spacing: 1px; margin-left: 4px; }
+.no-results { text-align: center; padding: 10% 5%; font-size: clamp(10px,1.3vw,18px); color: var(--dim); line-height: 1.7; }
+.no-results .nr-ic { font-size: clamp(28px,4vw,55px); display: block; margin-bottom: 4%; }
+
+/* ── STORE DETAIL OVERLAY ────────────────────── */
+#overlay {
+  position: absolute; inset: 0; z-index: 100;
+  background: var(--overlay-bg);
+  display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+#overlay.open { opacity: 1; pointer-events: all; }
+
+.det-panel {
+  width: 100%; background: var(--brand-dk);
+  border-top: 2.5px solid var(--gold);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 4% 5% 6%;
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.32,.72,0,1);
+  position: relative;
+}
+#overlay.open .det-panel { transform: translateY(0); }
+
+.det-handle { width: 44px; height: 5px; background: rgba(255,255,255,0.18); border-radius: 3px; margin: 0 auto 4%; }
+.det-close  {
+  position: absolute; top: 3.5%; right: 4%;
+  background: rgba(255,255,255,0.1); border: none; color: var(--white);
+  width: clamp(36px,5vw,56px); height: clamp(36px,5vw,56px);
+  border-radius: 50%; font-size: clamp(12px,1.6vw,20px); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif; transition: background .15s;
+}
+.det-close:hover { background: rgba(255,255,255,0.2); }
+.det-ic-wrap {
+  width: clamp(50px,8vw,80px); height: clamp(50px,8vw,80px);
+  border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center;
+  font-size: clamp(22px,3.5vw,40px); margin-bottom: 3%;
+}
+.det-name  { font-size: clamp(16px,2.2vw,30px); font-weight: 900; color: var(--white); margin-bottom: 1%; }
+.det-floor { font-size: clamp(7px,0.9vw,12px); color: var(--gold); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; margin-bottom: 3%; }
+.det-rows  { display: grid; gap: 1.5%; }
+.det-row   {
+  display: flex; align-items: flex-start; gap: 3%;
+  background: rgba(255,255,255,0.05); border-radius: var(--r-sm);
+  padding: 2.8% 3%;
+}
+.det-row-ic { font-size: clamp(14px,1.8vw,22px); flex-shrink: 0; width: 1.4em; text-align: center; margin-top: 2px; }
+.det-row-tx { font-size: clamp(8px,1.05vw,14px); color: var(--dim); line-height: 1.5; }
+.det-row-tx strong { color: var(--white); font-weight: 700; display: block; margin-bottom: 2px; }
+
+/* ── FOOTER ──────────────────────────────────── */
+.footer {
+  background: rgba(0,0,0,0.32); border-top: 1px solid rgba(201,168,76,0.18);
+  padding: 1.8% 4.5%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.yah-btn {
+  background: var(--gold); color: var(--brand-dk); border: none;
+  border-radius: 30px; padding: 1.5% 4%;
+  font-size: clamp(7px,0.95vw,13px); font-weight: 900;
+  letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  transition: background .15s;
+}
+.yah-btn:hover { background: var(--gold-lt); }
+.wifi-row { display: flex; align-items: center; gap: 5%; margin-left: 3%; }
+.wifi-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+.wifi-txt { font-size: clamp(6px,0.82vw,11px); color: var(--green); font-weight: 700; letter-spacing: 0.5px; }
+.ftr-r    { font-size: clamp(5.5px,0.75vw,10px); color: var(--muted); text-align: right; line-height: 1.6; }
+
+/* ── OPENING HOURS BANNER ────────────────────── */
+.hours-strip {
+  background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.18);
+  border-radius: var(--r-sm); padding: 1.5% 3%; margin-bottom: 2%;
+  display: flex; align-items: center; gap: 2%;
+  font-size: clamp(7px,0.9vw,12px); color: var(--dim);
+}
+.hours-strip strong { color: var(--gold); font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="kiosk">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div>
+        <div class="logo">Foyleside</div>
+        <div class="logo-sub">Shopping Centre · Derry</div>
+      </div>
+      <div class="hdr-right">
+        <div id="clock">--:--</div>
+        <div id="dateline"></div>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-ic">⌕</span>
+      <input id="searchInput" type="text" autocomplete="off" spellcheck="false"
+        placeholder="Search stores, restaurants, services…">
+      <button id="searchClear" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+
+  <!-- FLOOR TABS -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- VIEW SWITCHER -->
+  </div>
+
+  <!-- CATEGORY PILLS -->
+  <div class="pills-wrap" id="pillsWrap"></div>
+
+  <!-- MAIN -->
+  <div class="main" id="main"></div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div style="display:flex;align-items:center;">
+      <button class="yah-btn" >📍 You are here</button>
+      <div class="wifi-row">
+        <div class="wifi-dot"></div>
+        <span class="wifi-txt">Free WiFi</span>
+      </div>
+    </div>
+    <div class="ftr-r">Touch screen to explore<br>19 Orchard Street, Derry BT48 6XY</div>
+  </div>
+
+  <!-- STORE DETAIL OVERLAY -->
+  <div id="overlay" onclick="overlayBgClick(event)">
+    <div class="det-panel" id="detPanel">
+      <button class="det-close" onclick="closeDetail()">✕</button>
+      <div class="det-handle"></div>
+      <div id="detContent"></div>
+    </div>
+  </div>
+
+</div><!-- /kiosk -->
+
+<script>
+/* ════════════════════════════════
+   STORE DATA
+════════════════════════════════ */
+const FLOORS = {
+  L1:{
+    label:'Level 1',
+    desc:'Foyle Street entrance · Car parking · Supermarket',
+    anchors:[],
+    hours:'Mon–Sat 09:00–18:00 · Sun 13:00–18:00',
+    cats:{
+      'Supermarket & Food':[
+        {n:'Iceland',         u:'Units B4–5',     ic:'🛒',c:'#c8312a', desc:'Full supermarket with fresh, frozen and ambient food, household essentials and more.',          hours:'Mon–Sat 08:00–18:00 · Sun 13:00–18:00'},
+        {n:'Umi Asian',       u:'Foyle Street',   ic:'🍜',c:'#d47c30', desc:'Asian street food takeaway. Noodles, rice dishes, soups and snacks.',                          hours:'Mon–Sat 09:00–18:00', b:'food'},
+      ],
+      'Services':[
+        {n:'The Valet Centre',u:'West Car Park',  ic:'🚗',c:'#5a6a75', desc:'Car wash, full valet and daily parking service for shoppers.',     hours:'7 days'},
+        {n:'Customer Service',u:'Main Entrance',  ic:'ℹ️',c:'#3a5068', desc:'Lost property, gift cards, accessibility services and centre information.'},
+        {n:'Shopmobility',    u:'Level 1',         ic:'♿',c:'#3a5068', desc:'Free wheelchair and mobility scooter loans. Pre-booking recommended.'},
+        {n:'Click & Collect', u:'Level 1',         ic:'📦',c:'#4a6480', desc:'Parcel and online order collection point. Multiple retailers supported.'},
+        {n:'West Car Park',   u:'1,520 spaces',    ic:'🅿',c:'#3a5068', desc:'Multi-storey car park integrated with the shopping centre. 24-hour service available.'},
+        {n:'East Car Park',   u:'24-hr service',   ic:'🅿',c:'#3a5068', desc:'Multi-storey East Car Park. 24-hour access available. Glass walkway bridge to Level 3.'},
+      ],
+      'Facilities':[
+        {n:'Ladies Toilets',             u:'Level 1',ic:'🚺',c:'#4a6480'},
+        {n:'Gents Toilets',              u:'Level 1',ic:'🚹',c:'#4a6480'},
+        {n:'Accessible & Parent Change', u:'Level 1',ic:'👶',c:'#4a6480', desc:'Fully accessible toilet and baby changing facilities.'},
+        {n:'Escalators & Lift',          u:'Central', ic:'⬆',c:'#4a6480', desc:'Escalators and glass Kone lift serving all four levels.'},
+      ]
+    },
+    toilets:{title:'Toilet facilities on Level 1',items:['🚺 Ladies','🚹 Gents','♿ Accessible / Parent Change']}
+  },
+
+  L2:{
+    label:'Level 2',
+    desc:'Orchard Street entrance · Main shopping level · Atrium',
+    anchors:['Marks & Spencer','Dunnes Stores','Frasers'],
+    hours:'Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00',
+    cats:{
+      'Fashion':[
+        {n:'Marks & Spencer', u:'Unit L2',    ic:'👗',c:'#1a1a1a',b:'anchor', desc:'Clothing, lingerie, beauty and M&S Food. Includes the M&S Café with toilets inside.', hours:'Mon–Sat 09:00–18:00 · Sun 13:00–17:30'},
+        {n:'Dunnes Stores',   u:'Unit L1',    ic:'🛍',c:'#1a6a3a',b:'anchor', desc:'Anchor department store — fashion, homeware, food and beauty across multiple floors.',  hours:'Mon–Sat 09:00–18:00 · Sun 13:00–18:00'},
+        {n:'Frasers',         u:'East Wing',  ic:'🏬',c:'#1a2740',b:'anchor', desc:'Premium department store. Fashion, sports and lifestyle brands across multiple levels.', hours:'Mon–Sat 09:00–18:00 · Sun 13:00–18:00'},
+        {n:'Monsoon',         u:'Unit L19',   ic:'👗',c:'#8a3090', desc:'Women\'s fashion — occasionwear, dresses and accessories.'},
+        {n:'Edinburgh Woollen Mill',u:'Unit L14',ic:'🧶',c:'#5a3a20', desc:'Knitwear, country clothing and gifts.'},
+        {n:'Accessorize',     u:'Unit L19',   ic:'📿',c:'#7a3a9a', desc:'Jewellery, bags, scarves, hats and seasonal fashion accessories.'},
+      ],
+      'Health & Beauty':[
+        {n:'Boots',              u:'Units L7–9',  ic:'💊',c:'#003f8a', desc:'Pharmacy, health, beauty, skincare and photo printing.',hours:'Mon–Sat 09:00–18:00 · Sun 13:00–17:00'},
+        {n:'SC Beauty',          u:'Unit L15',    ic:'💄',c:'#c83a7a', desc:'Affordable health and beauty — cosmetics, toiletries and haircare.'},
+        {n:'The Body Shop',      u:'Units L17–18',ic:'🌿',c:'#2a6a2a', desc:'Ethical beauty brand — skincare, haircare and fragrances.'},
+        {n:'BPerfect Cosmetics', u:'Unit L5',     ic:'✨',c:'#c84060',b:'new', desc:'Northern Irish beauty brand. Makeup, brushes and palettes.'},
+        {n:'Rituals',            u:'Unit L13A',   ic:'🕯',c:'#8a6a3a',b:'new', desc:'Luxury home and body cosmetics. Newly refurbished unit.'},
+        {n:'The Perfume Shop',   u:'Unit L4',     ic:'🌸',c:'#c83a9a', desc:'Wide range of designer fragrances and gift sets for all budgets.'},
+        {n:'Holland & Barrett',  u:'Unit L16',    ic:'🌱',c:'#2a7a2a', desc:'Health food, vitamins, supplements and natural beauty products.'},
+      ],
+      'Shoes':[
+        {n:'Clarks Shoes',u:'Unit L6',  ic:'👞',c:'#8a5a20', desc:'Quality footwear for women, men and children.'},
+        {n:'Schuh',       u:'Unit L12', ic:'👠',c:'#1a1a1a', desc:'Fashion footwear and trainers for all ages.'},
+        {n:'Pavers',      u:'Unit L20A',ic:'👟',c:'#8a4a20', desc:'Comfortable footwear for men and women. Recently refurbished.'},
+        {n:'Office Shoes',u:'Unit L13', ic:'👟',c:'#2a2a2a', desc:'Trend-led footwear for men and women.'},
+      ],
+      'Jewellery':[
+        {n:'H. Samuel',u:'Unit L10',ic:'💍',c:'#c9a84c', desc:'Jewellery, watches and gifts for all occasions.'},
+      ],
+      'Food & Drink':[
+        {n:'Costa Coffee',u:'Unit L20',ic:'☕',c:'#6a1a0a',b:'food', desc:'Coffee shop. Hot and cold drinks, sandwiches and cakes. Toilets inside M&S adjacent.',hours:'Mon–Sat 08:30–18:00 · Sun 12:30–18:00'},
+        {n:'Greggs',      u:'Unit L11',ic:'🥖',c:'#c87020',b:'food', desc:'Fresh bakery — sausage rolls, pasties, sandwiches and sweet treats.',hours:'Mon–Sat 08:00–18:00'},
+      ],
+      'Gifts & Cards':[
+        {n:'Yankee Candle',u:'Unit L21',ic:'🕯',c:'#c83a3a', desc:'Premium scented candles, diffusers and home fragrance gifts.'},
+        {n:'Clintons',     u:'Unit L14',ic:'🎁',c:'#c84a7a', desc:'Greeting cards, gifts, balloons and seasonal products.'},
+        {n:'Card Factory', u:'Unit L13A',ic:'🎂',c:'#c8a020', desc:'Affordable greeting cards, gift wrap and party supplies.'},
+        {n:'Real Image',   u:'Unit —',  ic:'📸',c:'#4a6480', desc:'Photo printing, personalised gifts, canvases and photo books.'},
+      ],
+      'Services':[
+        {n:'Vision Express',   u:'Unit L12A',ic:'👓',c:'#1a3a7a', desc:'Opticians — eye tests, prescription glasses, contact lenses and sunglasses.'},
+        {n:'EE',               u:'Unit L11A',ic:'📱',c:'#00a050', desc:'Mobile phones, plans, broadband and accessories.'},
+        {n:'Bureau de Change', u:'Atrium',   ic:'💱',c:'#2a5a4a', desc:'Currency exchange. No appointment needed. Competitive rates.'},
+        {n:'Lottery Kiosk',    u:'Atrium',   ic:'🎰',c:'#3a7a3a', desc:'National Lottery tickets, EuroMillions and scratchcards.'},
+        {n:'The Kiosk',        u:'Atrium',   ic:'🛒',c:'#5a5a5a', desc:'Confectionery, snacks and sundries.'},
+      ]
+    },
+    toilets:null
+  },
+
+  L3:{
+    label:'Level 3',
+    desc:'Bridge Street entrance · Fashion · Dining · Glass roof tunnel',
+    anchors:['H&M','NEXT','Frasers / Sports Direct'],
+    hours:'Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00',
+    cats:{
+      'Fashion':[
+        {n:'H&M',          u:'Units M10–13',ic:'👔',c:'#c83a3a',b:'anchor', desc:'Global fashion brand for women, men, teens and children.', hours:'Mon–Sat 09:00–18:00 · Sun 13:00–18:00'},
+        {n:'NEXT',         u:'Unit M2',     ic:'🛍',c:'#2a2a2a',b:'anchor', desc:'Fashion, homeware and beauty. NEXT online collection point in store.', hours:'Mon–Sat 09:00–18:00 · Sun 13:00–18:00'},
+        {n:'MANGO',        u:'Unit M7',     ic:'👗',c:'#c87020',b:'new',    desc:'8,000 sq ft Spanish fashion store. Opened December 2024. Women\'s clothing and accessories.', hours:'Mon–Sat 09:00–18:00 · Sun 13:00–18:00'},
+        {n:'River Island', u:'Unit U3',     ic:'👗',c:'#2a2a2a',           desc:'On-trend fashion for women, men and children.'},
+        {n:'DV8',          u:'Unit M15A',   ic:'🎵',c:'#5a1a9a',           desc:'Music, streetwear, pop culture merchandise and entertainment products.'},
+        {n:'Regatta',      u:'Unit M8',     ic:'🧥',c:'#1a5a9a',           desc:'Outdoor and active clothing for all the family. Waterproofs, fleeces and footwear.'},
+        {n:'Smiggle',      u:'Unit M9',     ic:'🎒',c:'#c83a9a',           desc:'Colourful, fun stationery and bags for children.'},
+        {n:'Office Shoes', u:'Units M4–5',  ic:'👟',c:'#1a1a1a',           desc:'Trend-led footwear and trainers for men and women.'},
+        {n:'Waterstones',  u:'Unit M9A',    ic:'📚',c:'#5a2020',           desc:'Books, stationery, gifts and regular in-store events.'},
+        {n:'Frasers',      u:'Unit 11',     ic:'🏬',c:'#1a2740',b:'anchor', desc:'Premium department store across multiple levels via the glazed bridge walkway.'},
+        {n:'Sports Direct',u:'Unit 11',     ic:'⚽',c:'#c82020',b:'anchor', desc:'Sports clothing, equipment, footwear and accessories.'},
+        {n:'GAME',         u:'Sports Direct L3',ic:'🎮',c:'#1a5a1a',       desc:'Video games, consoles and accessories. Includes Belong Gaming Arena.'},
+      ],
+      'Dining':[
+        {n:'Starbucks Coffee',u:'Unit M15C',       ic:'☕',c:'#1a6a2a',b:'food', desc:'Coffee, teas, cold drinks and food. Toilets available inside for customers.', hours:'Mon–Sat 08:00–18:00 · Sun 12:00–18:00'},
+        {n:'Caffè Nero',      u:'Unit M15B',       ic:'☕',c:'#3a1a08',b:'food', desc:'Italian coffee bar. Paninis, pastries and cakes. Toilets available inside.', hours:'Mon–Sat 08:00–18:00 · Sun 12:00–18:00'},
+        {n:'Dunnes Café',     u:'Inside Dunnes M1',ic:'🍽',c:'#1a6a3a',b:'food', desc:'Café inside Dunnes Stores. Hot meals, sandwiches and snacks. Toilets inside Dunnes.', hours:'During Dunnes Stores trading hours'},
+        {n:'Angry Cherry',    u:'Unit M16',        ic:'🍒',c:'#c82020',b:'food', desc:'Dessert parlour — waffles, sundaes, crepes and sweet treats.'},
+      ],
+      'Phones & Tech':[
+        {n:'Three Mobile',u:'Unit M6',    ic:'📱',c:'#c82090', desc:'Mobile phones, SIM-only plans, broadband and accessories.'},
+        {n:'O2',          u:'Units M18–19',ic:'📱',c:'#1a3a7a', desc:'Mobile phones, tariffs and accessories. O2 Priority rewards.'},
+        {n:'Uberfone',    u:'Unit M17A',  ic:'📱',c:'#5a5a5a', desc:'Phone repairs, unlocking, accessories and second-hand handsets.'},
+      ],
+      'Services':[
+        {n:'Hays Travel',  u:'Unit M16A',ic:'✈️',c:'#c87020', desc:'Travel agency — package holidays, flights, cruises and travel insurance.'},
+        {n:'Nova Nails',   u:'Unit M16', ic:'💅',c:'#c83a7a',b:'new', desc:'Nail bar — manicures, gel nails, pedicures and nail art. Walk-ins welcome.'},
+        {n:'The Barber',   u:'Unit M14', ic:'✂️',c:'#2a4a6a', desc:'Barber shop — haircuts, fades, beard trims and traditional shaves.'},
+        {n:'Beauty Salon', u:'Unit M17B',ic:'💇',c:'#8a3060', desc:'Hair and beauty treatments. Blow-dries, colour and styling.'},
+        {n:'Kiosk',        u:'Atrium',   ic:'🛒',c:'#5a5a5a', desc:'Confectionery, snacks and sundries.'},
+      ]
+    },
+    toilets:{
+      title:'Toilets on Level 3 — available inside these venues',
+      items:['☕ Starbucks (customers)','☕ Caffè Nero (customers)','🛍 Dunnes Stores (inside)','🛍 M&S Café (Level 2)']
+    }
+  },
+
+  L4:{
+    label:'Level 4',
+    desc:'Carlisle Road & Bridge Street entrance · Top shopping level',
+    anchors:[],
+    hours:'Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00',
+    cats:{
+      'Fashion & Accessories':[
+        {n:'River Island',u:'Unit U3', ic:'👗',c:'#2a2a2a', desc:'On-trend fashion for women, men and children.'},
+        {n:'Claire\'s',   u:'Unit U1A',ic:'💎',c:'#c83a9a', desc:'Jewellery, hair accessories and ear piercing for girls and teens.'},
+        {n:'Pandora',     u:'Unit U1', ic:'💍',c:'#c9a84c', desc:'Handcrafted jewellery. Charms, bracelets, rings, necklaces and gift sets.', hours:'Mon–Sat 09:00–18:00 · Sun 13:00–17:30'},
+        {n:'Timpson',     u:'Unit U4A',ic:'🔑',c:'#1a3a7a', desc:'Key cutting, shoe repairs, watch batteries, engraving and dry-cleaning drop-off.'},
+      ],
+      'Food & Drink':[
+        {n:'McDonald\'s',    u:'Unit U4', ic:'🍔',c:'#c8a020',b:'food', desc:'Fast food restaurant. Burgers, breakfast, McCafé, kids\' meals and desserts.', hours:'Mon–Sat 08:00–21:00 · Sun 10:00–18:00'},
+        {n:'Hey Boba.',      u:'Unit U5', ic:'🧋',c:'#c87060',b:'food', desc:'Bubble tea bar. Boba drinks, fruit teas, smoothies and snacks.'},
+        {n:'All Sweet Hi',   u:'Unit U4B',ic:'🍬',c:'#c83a7a',b:'food', desc:'Pick-and-mix sweets, American candy, gifts and confectionery.'},
+        {n:'Synge & Byrne',  u:'Unit U6', ic:'🍞',c:'#8a5a20',b:'food', desc:'Irish café and artisan bakery. Soups, toasties, coffee and freshly baked goods.'},
+      ],
+      'Facilities':[
+        {n:'Ladies Toilets',          u:'Level 4',ic:'🚺',c:'#4a6480', desc:'Newly refurbished ladies\' toilet facilities. Level 4.'},
+        {n:'Gents Toilets',           u:'Level 4',ic:'🚹',c:'#4a6480', desc:'Newly refurbished gents\' toilet facilities. Level 4.'},
+        {n:'Accessible Toilets',      u:'Level 4',ic:'♿',c:'#4a6480', desc:'Accessible toilet facilities. Level 4.'},
+        {n:'Parent Room & Baby Change',u:'Level 4',ic:'👶',c:'#4a6480', desc:'Private parent room with baby changing facilities. Newly refurbished. Level 4.'},
+        {n:'ATM',                      u:'Level 4',ic:'🏧',c:'#4a6480', desc:'Cash machine. Level 4.'},
+      ]
+    },
+    toilets:{
+      title:'Toilet facilities on Level 4 — recently refurbished',
+      items:['🚺 Ladies','🚹 Gents','♿ Accessible','👶 Parent Room & Baby Change']
+    }
+  }
+};
+
+/* ════════════════════════════════
+   STATE
+════════════════════════════════ */
+let AF = 'L2';   // active floor
+let AC = 'All';  // active category
+let SQ = '';     // search query
+
+/* ════════════════════════════════
+   CLOCK
+════════════════════════════════ */
+function tick() {
+  const n = new Date();
+  const p = x => String(x).padStart(2,'0');
+  document.getElementById('clock').textContent = p(n.getHours())+':'+p(n.getMinutes());
+  const days  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months= ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('dateline').textContent = days[n.getDay()]+' '+n.getDate()+' '+months[n.getMonth()]+' '+n.getFullYear();
+}
+tick(); setInterval(tick, 15000);
+
+/* ════════════════════════════════
+   TABS
+════════════════════════════════ */
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = Object.keys(FLOORS).map(k =>
+    `<div class="tab${k===AF?' active':''}" onclick="setFloor('${k}')">
+       <span class="tab-num">${k}</span>
+       <span class="tab-lbl">${FLOORS[k].label}</span>
+     </div>`
+  ).join('');
+}
+
+/* ════════════════════════════════
+   PILLS
+════════════════════════════════ */
+function renderPills() {
+  if (SQ) { document.getElementById('pillsWrap').innerHTML=''; return; }
+  const cats = Object.keys(FLOORS[AF].cats);
+  document.getElementById('pillsWrap').innerHTML =
+    `<div class="pill${AC==='All'?' active':''}" onclick="setCat('All')">All</div>` +
+    cats.map(c =>
+      `<div class="pill${AC===c?' active':''}" onclick="setCat('${c}')">${c}</div>`
+    ).join('');
+}
+
+/* ════════════════════════════════
+   STORE CARD HTML
+════════════════════════════════ */
+function sCard(s, fk, showFloor) {
+  const enc = encodeURIComponent(JSON.stringify(s));
+  return `<div class="s-card" onclick="openDetail('${enc}','${fk||AF}')">
+    <div class="s-ic" style="background:${s.c}22;color:${s.c}">${s.ic}</div>
+    <div class="s-info">
+      <div class="s-name">${s.n}</div>
+      <div class="s-unit">${s.u}${showFloor?` <span class="sr-badge">${fk}</span>`:''}</div>
+      ${s.b?`<span class="badge b-${s.b}">${s.b==='anchor'?'Anchor':s.b==='new'?'New':'Dining'}</span>`:''}
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════
+   MAIN RENDER
+════════════════════════════════ */
+function renderMain() {
+  if (SQ) { renderSearch(); return; }
+  const fl = FLOORS[AF];
+  const cats = Object.keys(fl.cats);
+  const showCats = AC==='All' ? cats : [AC];
+  let h = '';
+
+  h += `<div class="flr-desc">${fl.desc}</div>`;
+  h += `<div class="hours-strip">🕐 &nbsp;<strong>Centre hours today:&nbsp;</strong>${fl.hours}</div>`;
+
+  if (fl.anchors.length && AC==='All') {
+    h += `<div class="sec-lbl">Anchor stores</div><div class="anchors">`;
+    fl.anchors.forEach(a => {
+      h += `<div class="anc-card" onclick="openStoreByName('${a}')">
+              <div class="anc-name">${a}</div>
+              <div class="anc-tag">Anchor</div>
+            </div>`;
+    });
+    h += `</div>`;
+  }
+
+  showCats.forEach(cat => {
+    h += `<div class="sec-lbl">${cat}</div><div class="store-grid">`;
+    fl.cats[cat].forEach(s => { h += sCard(s, AF, false); });
+    h += `</div>`;
+  });
+
+  if (AC==='All' && fl.toilets) {
+    h += `<div class="toilet-block">
+      <div class="toilet-ttl">${fl.toilets.title}</div>
+      <div class="toilet-items">${fl.toilets.items.map(i=>`<div class="toilet-item">${i}</div>`).join('')}</div>
+    </div>`;
+  }
+
+  if (AC==='All') {
+    h += `<div class="sec-lbl" style="margin-top:3%">Centre facilities</div>
+    <div class="facs">
+      <div class="fac"><span class="fac-ic">🚻</span><span class="fac-n">Toilets</span></div>
+      <div class="fac"><span class="fac-ic">♿</span><span class="fac-n">Accessibility</span></div>
+      <div class="fac"><span class="fac-ic">🅿</span><span class="fac-n">Car Park</span></div>
+      <div class="fac"><span class="fac-ic">🏧</span><span class="fac-n">ATM</span></div>
+      <div class="fac"><span class="fac-ic">🎁</span><span class="fac-n">Gift Cards</span></div>
+      <div class="fac"><span class="fac-ic">📦</span><span class="fac-n">Click &amp; Collect</span></div>
+      <div class="fac"><span class="fac-ic">ℹ️</span><span class="fac-n">Info Desk</span></div>
+      <div class="fac"><span class="fac-ic">🚗</span><span class="fac-n">Car Valet</span></div>
+    </div>`;
+  }
+
+  document.getElementById('main').innerHTML = h;
+}
+
+
+/* ════════════════════════════════
+   SEARCH
+════════════════════════════════ */
+function renderSearch() {
+  const q = SQ.toLowerCase().trim();
+  if (!q) { clearSearch(); return; }
+  const results = [];
+  Object.entries(FLOORS).forEach(([fk, fv]) => {
+    Object.values(fv.cats).flat().forEach(s => {
+      if (
+        s.n.toLowerCase().includes(q) ||
+        (s.desc && s.desc.toLowerCase().includes(q)) ||
+        (s.u && s.u.toLowerCase().includes(q)) ||
+        fv.label.toLowerCase().includes(q)
+      ) {
+        results.push({...s, _fk: fk});
+      }
+    });
+  });
+
+  let h = `<div class="sr-head">${results.length} result${results.length!==1?'s':''} for "${SQ}"</div>`;
+  if (!results.length) {
+    h += `<div class="no-results">
+      <span class="nr-ic">🔍</span>
+      No stores found for "<strong>${SQ}</strong>".<br>
+      Try searching by store name,<br>category or floor.
+    </div>`;
+  } else {
+    h += `<div class="store-grid">`;
+    results.forEach(s => { h += sCard(s, s._fk, true); });
+    h += `</div>`;
+  }
+  document.getElementById('main').innerHTML = h;
+}
+
+function clearSearch() {
+  SQ = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').classList.remove('show');
+  renderPills();
+  renderMain();
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  SQ = this.value.trim();
+  document.getElementById('searchClear').classList.toggle('show', !!SQ);
+  renderPills();
+  renderMain();
+  document.getElementById('main').scrollTop = 0;
+});
+
+/* ════════════════════════════════
+   DETAIL OVERLAY
+════════════════════════════════ */
+function openDetail(enc, fk) {
+  const s  = JSON.parse(decodeURIComponent(enc));
+  const fl = FLOORS[fk];
+  document.getElementById('detContent').innerHTML = `
+    <div class="det-ic-wrap" style="background:${s.c}22;color:${s.c}">${s.ic}</div>
+    <div class="det-name">${s.n}</div>
+    <div class="det-floor">${fl ? fl.label : fk} &nbsp;·&nbsp; ${s.u}</div>
+    <div class="det-rows">
+      ${s.desc ? `<div class="det-row">
+        <span class="det-row-ic">📝</span>
+        <span class="det-row-tx">${s.desc}</span>
+      </div>` : ''}
+      ${s.hours ? `<div class="det-row">
+        <span class="det-row-ic">🕐</span>
+        <span class="det-row-tx"><strong>Opening hours</strong>${s.hours}</span>
+      </div>` : `<div class="det-row">
+        <span class="det-row-ic">🕐</span>
+        <span class="det-row-tx"><strong>Opening hours</strong>${fl ? fl.hours : 'See centre hours'}</span>
+      </div>`}
+      <div class="det-row">
+        <span class="det-row-ic">📍</span>
+        <span class="det-row-tx"><strong>Location</strong>${fl ? fl.label : fk} — ${s.u}</span>
+      </div>
+      ${s.b==='food' ? `<div class="det-row">
+        <span class="det-row-ic">🍽</span>
+        <span class="det-row-tx">Dining venue — food and drink available</span>
+      </div>` : ''}
+      ${s.b==='new' ? `<div class="det-row">
+        <span class="det-row-ic">🆕</span>
+        <span class="det-row-tx">Recently opened at Foyleside Shopping Centre</span>
+      </div>` : ''}
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function openStoreByName(name) {
+  let found = null, fk = null;
+  Object.entries(FLOORS).forEach(([k,f]) => {
+    Object.values(f.cats).flat().forEach(s => { if (s.n===name) { found=s; fk=k; } });
+  });
+  if (found) openDetail(encodeURIComponent(JSON.stringify(found)), fk);
+}
+
+function closeDetail() {
+  document.getElementById('overlay').classList.remove('open');
+}
+function overlayBgClick(e) {
+  if (e.target === document.getElementById('overlay')) closeDetail();
+}
+
+/* ════════════════════════════════
+   VIEW / FLOOR / CAT SWITCHING
+════════════════════════════════ */
+function setFloor(f) {
+  AF = f; AC = 'All';
+  renderTabs(); renderPills(); renderMain();
+  document.getElementById('main').scrollTop = 0;
+}
+function setCat(c) {
+  AC = c;
+  renderPills(); renderMain();
+  document.getElementById('main').scrollTop = 0;
+}
+
+/* ════════════════════════════════
+   IDLE RESET — 3 minutes
+════════════════════════════════ */
+let idleT;
+function resetIdle() {
+  clearTimeout(idleT);
+  idleT = setTimeout(() => {
+    clearSearch();
+    setFloor('L2');
+    
+    closeDetail();
+  }, 180000);
+}
+document.getElementById('kiosk').addEventListener('touchstart', resetIdle, {passive:true});
+document.getElementById('kiosk').addEventListener('mousedown',  resetIdle);
+resetIdle();
+
+/* ════════════════════════════════
+   INIT
+════════════════════════════════ */
+renderTabs();
+renderPills();
+renderMain();
+</script>
+</body>
+</html>

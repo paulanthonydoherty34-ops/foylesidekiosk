@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foyleside Shopping Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg:      #293945;
+  --bg-dark: #1b2830;
+  --bg-mid:  #344d5e;
+  --gold:    #c9a84c;
+  --gold-lt: #e8c87a;
+  --white:   #ffffff;
+  --dim:     rgba(255,255,255,0.6);
+  --muted:   rgba(255,255,255,0.35);
+  --card:    rgba(255,255,255,0.07);
+  --card-b:  rgba(255,255,255,0.12);
+  --green:   #7edaa0;
+  --radius:  12px;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-dark);
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* ═══════════════════════════
+   KIOSK — fills entire screen
+═══════════════════════════ */
+#app {
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+#app::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 40% at 50% 0%, rgba(201,168,76,0.12) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+#app > * { position: relative; z-index: 1; }
+
+/* ═══════════════════════════
+   HEADER
+═══════════════════════════ */
+.header {
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.28);
+  border-bottom: 1px solid rgba(201,168,76,0.22);
+  padding: 16px 24px 14px;
+}
+.header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.logo { font-size: clamp(22px, 5vw, 42px); font-weight: 900; color: var(--white); letter-spacing: 3px; text-transform: uppercase; line-height: 1; }
+.logo-sub { font-size: clamp(9px, 1.5vw, 13px); font-weight: 500; color: var(--gold); letter-spacing: 4px; text-transform: uppercase; margin-top: 4px; }
+.header-right { text-align: right; }
+#clock { font-size: clamp(20px, 4vw, 36px); font-weight: 700; color: var(--white); line-height: 1; }
+#dateline { font-size: clamp(9px, 1.4vw, 12px); color: var(--dim); margin-top: 3px; }
+
+/* Search */
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(201,168,76,0.3);
+  border-radius: 50px;
+  padding: 10px 18px;
+  transition: background 0.2s;
+}
+.search-row:focus-within { background: rgba(255,255,255,0.13); }
+.search-row span { font-size: clamp(14px, 2.5vw, 20px); opacity: 0.6; }
+#searchInput {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-size: clamp(12px, 2vw, 16px); color: var(--white);
+  font-family: 'Montserrat', sans-serif; font-weight: 400;
+}
+#searchInput::placeholder { color: rgba(255,255,255,0.4); }
+#clearBtn {
+  display: none; background: rgba(255,255,255,0.15); border: none;
+  color: var(--white); border-radius: 50%; width: 26px; height: 26px;
+  font-size: 13px; cursor: pointer; font-family: 'Montserrat', sans-serif;
+  align-items: center; justify-content: center;
+}
+#clearBtn.show { display: flex; }
+
+/* ═══════════════════════════
+   FLOOR TABS
+═══════════════════════════ */
+.floor-tabs {
+  flex-shrink: 0;
+  display: flex;
+  background: rgba(0,0,0,0.22);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.ftab {
+  flex: 1; text-align: center; padding: 12px 8px;
+  cursor: pointer; border-bottom: 3px solid transparent;
+  transition: all 0.18s; color: var(--muted);
+  font-family: 'Montserrat', sans-serif;
+}
+.ftab:hover { color: rgba(255,255,255,0.75); }
+.ftab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.ftab-num { display: block; font-size: clamp(16px, 3.5vw, 30px); font-weight: 900; line-height: 1.1; }
+.ftab-lbl { font-size: clamp(9px, 1.4vw, 12px); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+
+/* ═══════════════════════════
+   CATEGORY PILLS
+═══════════════════════════ */
+.pills-row {
+  flex-shrink: 0;
+  display: flex; gap: 8px;
+  padding: 12px 20px 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.pills-row::-webkit-scrollbar { display: none; }
+.pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 30px; padding: 7px 16px;
+  font-size: clamp(10px, 1.6vw, 13px); font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  color: var(--dim); cursor: pointer; white-space: nowrap;
+  transition: all 0.15s; font-family: 'Montserrat', sans-serif;
+}
+.pill:hover  { background: rgba(201,168,76,0.12); border-color: rgba(201,168,76,0.4); color: var(--gold-lt); }
+.pill.active { background: rgba(201,168,76,0.18); border-color: var(--gold); color: var(--gold); }
+
+/* ═══════════════════════════
+   MAIN SCROLL AREA
+═══════════════════════════ */
+.main {
+  flex: 1; overflow-y: auto; padding: 14px 20px 20px;
+  scrollbar-width: none;
+}
+.main::-webkit-scrollbar { display: none; }
+
+/* Floor description */
+.floor-desc {
+  font-size: clamp(10px, 1.5vw, 13px); color: var(--gold-lt);
+  letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+  margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Hours strip */
+.hours-strip {
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 8px; padding: 10px 14px;
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  font-size: clamp(10px, 1.5vw, 13px); color: var(--dim);
+}
+.hours-strip strong { color: var(--gold); font-weight: 700; }
+
+/* Section label */
+.sec-label {
+  font-size: clamp(9px, 1.3vw, 12px); letter-spacing: 2px; color: var(--muted);
+  text-transform: uppercase; font-weight: 800;
+  margin: 16px 0 10px; padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+/* Anchor store cards */
+.anchor-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.anchor-card {
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: var(--radius); padding: 14px 10px;
+  text-align: center; cursor: pointer; transition: all 0.15s;
+}
+.anchor-card:hover, .anchor-card:active { background: rgba(201,168,76,0.2); }
+.anchor-name { font-size: clamp(11px, 1.8vw, 15px); font-weight: 800; color: var(--white); }
+.anchor-tag  { font-size: clamp(8px, 1.2vw, 10px); color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; font-weight: 600; }
+
+/* Store grid — 2 columns */
+.store-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 8px; }
+.store-card {
+  background: var(--card); border: 1px solid var(--card-b);
+  border-radius: var(--radius); padding: 14px 12px;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; gap: 12px;
+}
+.store-card:hover, .store-card:active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); }
+.store-icon {
+  width: clamp(36px, 6vw, 52px); height: clamp(36px, 6vw, 52px);
+  border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(16px, 2.8vw, 24px);
+}
+.store-info { flex: 1; min-width: 0; }
+.store-name { font-size: clamp(11px, 1.8vw, 15px); font-weight: 700; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.store-unit { font-size: clamp(9px, 1.3vw, 12px); color: var(--dim); margin-top: 2px; }
+.badge { display: inline-block; font-size: clamp(8px, 1.1vw, 10px); padding: 2px 8px; border-radius: 20px; margin-top: 4px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.b-food   { background: rgba(201,168,76,0.22); color: var(--gold-lt); }
+.b-new    { background: rgba(126,218,160,0.2); color: var(--green); }
+.b-anchor { background: rgba(201,168,76,0.22); color: var(--gold); }
+
+/* Toilet block */
+.toilet-block {
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid rgba(201,168,76,0.5);
+  border-radius: 8px; padding: 12px 14px; margin-top: 14px;
+}
+.toilet-title { font-size: clamp(9px, 1.3vw, 11px); font-weight: 800; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+.toilet-items { display: flex; gap: 8px; flex-wrap: wrap; }
+.toilet-item { font-size: clamp(10px, 1.5vw, 13px); color: var(--dim); background: rgba(255,255,255,0.06); border-radius: 20px; padding: 5px 12px; }
+
+/* Facilities grid */
+.fac-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+.fac-item {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 12px 6px; text-align: center; cursor: pointer;
+  transition: background 0.15s;
+}
+.fac-item:hover { background: rgba(255,255,255,0.1); }
+.fac-icon { font-size: clamp(18px, 3vw, 28px); display: block; margin-bottom: 5px; }
+.fac-name { font-size: clamp(8px, 1.2vw, 11px); color: var(--muted); font-weight: 600; letter-spacing: 0.5px; }
+
+/* Search results */
+.sr-heading { font-size: clamp(10px, 1.5vw, 13px); color: var(--gold-lt); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; margin-bottom: 14px; }
+.sr-floor { display: inline-block; font-size: clamp(8px, 1.1vw, 10px); background: rgba(201,168,76,0.2); color: var(--gold); padding: 2px 8px; border-radius: 20px; font-weight: 800; letter-spacing: 1px; margin-left: 6px; }
+.no-results { text-align: center; padding: 60px 20px; font-size: clamp(13px, 2vw, 18px); color: var(--dim); line-height: 1.8; }
+.no-results .nr-icon { font-size: clamp(36px, 6vw, 56px); display: block; margin-bottom: 16px; }
+
+/* ═══════════════════════════
+   FOOTER
+═══════════════════════════ */
+.footer {
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.3);
+  border-top: 1px solid rgba(201,168,76,0.18);
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-left { display: flex; align-items: center; gap: 16px; }
+.yah-btn {
+  background: var(--gold); color: var(--bg-dark); border: none;
+  border-radius: 30px; padding: 10px 20px;
+  font-size: clamp(10px, 1.5vw, 13px); font-weight: 900;
+  letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+}
+.wifi { display: flex; align-items: center; gap: 6px; }
+.wifi-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+.wifi-text { font-size: clamp(9px, 1.3vw, 12px); color: var(--green); font-weight: 700; }
+.footer-right { font-size: clamp(9px, 1.2vw, 11px); color: var(--muted); text-align: right; line-height: 1.6; }
+
+/* ═══════════════════════════
+   STORE DETAIL — CENTRE MODAL
+═══════════════════════════ */
+#modal-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(15, 25, 33, 0.88);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+#modal-backdrop.open { opacity: 1; pointer-events: all; }
+
+.modal-box {
+  background: var(--bg-dark);
+  border: 2px solid var(--gold);
+  border-radius: 20px;
+  width: 100%; max-width: 560px;
+  padding: 32px 32px 28px;
+  transform: scale(0.92);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.modal-box::-webkit-scrollbar { display: none; }
+#modal-backdrop.open .modal-box { transform: scale(1); }
+
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(255,255,255,0.1); border: none;
+  color: var(--white); border-radius: 50%;
+  width: 40px; height: 40px; font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif; transition: background 0.15s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.22); }
+
+.modal-icon {
+  width: 64px; height: 64px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; margin-bottom: 14px;
+}
+.modal-name { font-size: clamp(20px, 3.5vw, 30px); font-weight: 900; color: var(--white); margin-bottom: 4px; }
+.modal-floor { font-size: clamp(10px, 1.5vw, 13px); color: var(--gold); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; margin-bottom: 20px; }
+
+.modal-rows { display: flex; flex-direction: column; gap: 10px; }
+.modal-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: rgba(255,255,255,0.06); border-radius: 10px; padding: 14px;
+}
+.modal-row-icon { font-size: 20px; flex-shrink: 0; width: 24px; text-align: center; margin-top: 1px; }
+.modal-row-text { font-size: clamp(11px, 1.6vw, 14px); color: var(--dim); line-height: 1.55; }
+.modal-row-text strong { color: var(--white); font-weight: 700; display: block; margin-bottom: 2px; }
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="logo">Foyleside</div>
+        <div class="logo-sub">Shopping Centre · Derry</div>
+      </div>
+      <div class="header-right">
+        <div id="clock">--:--</div>
+        <div id="dateline"></div>
+      </div>
+    </div>
+    <div class="search-row">
+      <span>⌕</span>
+      <input id="searchInput" type="text" autocomplete="off" spellcheck="false" placeholder="Search stores, restaurants, services…">
+      <button id="clearBtn" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+
+  <!-- FLOOR TABS -->
+  <div class="floor-tabs" id="floorTabs"></div>
+
+  <!-- CATEGORY PILLS -->
+  <div class="pills-row" id="pillsRow"></div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main" id="main"></div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">
+      <button class="yah-btn">📍 You are here</button>
+      <div class="wifi">
+        <div class="wifi-dot"></div>
+        <span class="wifi-text">Free WiFi</span>
+      </div>
+    </div>
+    <div class="footer-right">Touch screen to explore<br>19 Orchard Street, Derry BT48 6XY</div>
+  </div>
+
+  <!-- STORE DETAIL MODAL (centred) -->
+  <div id="modal-backdrop" onclick="backdropClick(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+
+/* ═══════════════════════════
+   ALL STORE DATA
+═══════════════════════════ */
+const FLOORS = {"L1":{"label":"Level 1","desc":"Foyle Street entrance · Car parking · Supermarket","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00","anchors":[],"toilets":{"title":"Toilet facilities — Level 1","items":["🚺 Ladies","🚹 Gents","♿ Accessible / Parent Change"]},"cats":{"Supermarket & Food":[{"n":"Iceland","u":"Units B4–5","ic":"🛒","c":"#c8312a","desc":"Full supermarket. Fresh, frozen and ambient food and household essentials.","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00"},{"n":"UMI","u":"Foyle Street","ic":"🍜","c":"#d47c30","b":"food","desc":"Asian street food takeaway. Noodles, rice dishes, soups and snacks.","hours":"Opens at 11am Mon-Sat 1pm Sun"}],"Services":[{"n":"The Valet Centre","u":"West Car Park","ic":"🚗","c":"#5a6a75","desc":"Car wash, full valet and daily parking service for shoppers.","hours":"7 days"},{"n":"Customer Service","u":"Main Entrance","ic":"ℹ️","c":"#3a5068","desc":"Lost property, gift cards, accessibility services and centre information.","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00"},{"n":"West Car Park","u":"1,520 spaces","ic":"🅿","c":"#3a5068","desc":"Multi-storey car park integrated with the shopping centre."},{"n":"East Car Park","u":"24-hr service","ic":"🅿","c":"#3a5068","desc":"Multi-storey East Car Park. 24-hour access available.","hours":"24 Hours 365 Days a Year"}],"Facilities":[{"n":"Ladies Toilets","u":"Level 1","ic":"🚺","c":"#4a6480"},{"n":"Gents Toilets","u":"Level 1","ic":"🚹","c":"#4a6480"},{"n":"Accessible & Parent Change","u":"Level 1","ic":"👶","c":"#4a6480","desc":"Fully accessible toilet and baby changing facilities."}]}},"L2":{"label":"Level 2","desc":"Orchard Street entrance · Main shopping level ","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00","anchors":["Marks & Spencer","Dunnes Stores","Frasers"],"toilets":null,"cats":{"Fashion":[{"n":"Marks & Spencer","u":"Unit L2","ic":"👗","c":"#1a1a1a","b":"anchor","desc":"Clothing, lingerie, beauty and M&S Food. Includes M&S Café with toilets inside.","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00"},{"n":"Dunnes Stores","u":"Unit L1","ic":"🛍","c":"#1a6a3a","b":"anchor","desc":"Anchor department store — fashion, homeware, food and beauty.","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00"},{"n":"Monsoon","u":"Unit L19","ic":"👗","c":"#8a3090","desc":"Women's fashion — occasionwear, dresses and accessories.","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00"},{"n":"Edinburgh Woollen Mill","u":"Unit L14","ic":"🧶","c":"#5a3a20","desc":"Knitwear, country clothing and gifts."},{"n":"Accessorize","u":"Unit L19","ic":"📿","c":"#7a3a9a","desc":"Jewellery, bags, scarves and seasonal accessories."}],"Health & Beauty":[{"n":"Boots","u":"Units L7–9","ic":"💊","c":"#003f8a","desc":"Pharmacy, health, beauty, skincare and photo printing.","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00 (10am on Bank Holidays)"},{"n":"SC Beauty","u":"Unit L15","ic":"💄","c":"#c83a7a","desc":"Affordable health and beauty — cosmetics, toiletries and haircare."},{"n":"The Body Shop","u":"Units L17–18","ic":"🌿","c":"#2a6a2a","desc":"Ethical beauty — skincare, haircare and fragrances."},{"n":"BPerfect Cosmetics","u":"Unit L5","ic":"✨","c":"#c84060","b":"new","desc":"Northern Irish beauty brand — makeup, brushes and palettes."},{"n":"Rituals","u":"Unit L13A","ic":"🕯","c":"#8a6a3a","b":"new","desc":"Luxury home and body cosmetics."},{"n":"The Perfume Shop","u":"Unit L4","ic":"🌸","c":"#c83a9a","desc":"Designer fragrances and gift sets."},{"n":"Holland & Barrett","u":"Unit L16","ic":"🌱","c":"#2a7a2a","desc":"Health food, vitamins, supplements and natural beauty."}],"Shoes":[{"n":"Clarks Shoes","u":"Unit L6","ic":"👞","c":"#8a5a20","desc":"Quality footwear for women, men and children."},{"n":"Schuh","u":"Unit L12","ic":"👠","c":"#1a1a1a","desc":"Fashion footwear and trainers."},{"n":"Pavers","u":"Unit L20A","ic":"👟","c":"#8a4a20","desc":"Comfortable footwear for men and women."}],"Jewellery":[{"n":"H. Samuel","u":"Unit L10","ic":"💍","c":"#c9a84c","desc":"Jewellery, watches and gifts."}],"Food & Drink":[{"n":"Costa Coffee","u":"Unit L20","ic":"☕","c":"#6a1a0a","b":"food","desc":"Coffee, hot and cold drinks, sandwiches and cakes.","hours":"Mon–Sat 08:30–18:00 · Sun 12:30–18:00"},{"n":"Greggs","u":"Unit L11","ic":"🥖","c":"#c87020","b":"food","desc":"Fresh bakery — sausage rolls, pasties, sandwiches and sweet treats.","hours":"Mon–Sat 08:00–18:00"}],"Gifts & Cards":[{"n":"Yankee Candle","u":"Unit L21","ic":"🕯","c":"#c83a3a","desc":"Premium scented candles and home fragrance gifts."},{"n":"Clintons","u":"Unit L14","ic":"🎁","c":"#c84a7a","desc":"Greeting cards, gifts and seasonal products."},{"n":"Card Factory","u":"Unit L13A","ic":"🎂","c":"#c8a020","desc":"Affordable cards, gift wrap and party supplies."},{"n":"Real Image","u":"Kiosk Level 2","ic":"📸","c":"#4a6480","desc":"Photo printing and personalised gifts."}],"Services":[{"n":"Vision Express","u":"Unit L12A","ic":"👓","c":"#1a3a7a","desc":"Opticians — eye tests, glasses and contact lenses."},{"n":"EE","u":"Unit L11A","ic":"📱","c":"#00a050","desc":"Mobile phones, plans and broadband."},{"n":"Bureau de Change","u":"Under Escalator Level 2","ic":"💱","c":"#2a5a4a","desc":"Currency exchange. No appointment needed."},{"n":"The Kiosk","u":"Kiosk Level 2","ic":"🛒","c":"#5a5a5a","desc":"Confectionery and snacks."}]}},"L3":{"label":"Level 3","desc":"Fashion · Dining ","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00","anchors":["H&M","NEXT","Frasers / Sports Direct"],"toilets":{"title":"Toilets on Level 3 — inside venues","items":["☕ Starbucks","☕ Caffè Nero","🛍 Dunnes Stores","🛍 M&S Café (L2)"]},"cats":{"Fashion":[{"n":"H&M","u":"Units M10–13","ic":"👔","c":"#c83a3a","b":"anchor","desc":"Global fashion for women, men, teens and children.","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00"},{"n":"NEXT","u":"Unit M2","ic":"🛍","c":"#2a2a2a","b":"anchor","desc":"Fashion, homeware and beauty.","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00"},{"n":"MANGO","u":"Unit M7","ic":"👗","c":"#c87020","b":"new","desc":"8,000 sq ft Spanish fashion store. Opened December 2024.","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00"},{"n":"DV8","u":"Unit M15A","ic":"🎵","c":"#5a1a9a","desc":"Ladies and Mens Fashion "},{"n":"Regatta","u":"Unit M8","ic":"🧥","c":"#1a5a9a","desc":"Outdoor and active clothing for the whole family."},{"n":"Smiggle","u":"Unit M9","ic":"🎒","c":"#c83a9a","desc":"Colourful stationery and bags for children."},{"n":"Office Shoes","u":"Units M4–5","ic":"👟","c":"#1a1a1a","desc":"Trend-led footwear for men and women."},{"n":"Waterstones","u":"Unit M9A","ic":"📚","c":"#5a2020","desc":"Books, stationery and gifts."}],"Dining":[{"n":"Starbucks Coffee","u":"Unit M15C","ic":"☕","c":"#1a6a2a","b":"food","desc":"Coffee, drinks and food. Toilets available inside.","hours":"Mon–Tue 08:00–18:00 · Wed–Fri 08:00–21:00 · Sat 08:00–18:00 · Sun 12:00–18:00"},{"n":"Caffè Nero","u":"Unit M15B","ic":"☕","c":"#3a1a08","b":"food","desc":"Italian coffee bar. Paninis and pastries. Toilets inside.","hours":"Mon–Tue 08:00–18:00 · Wed–Fri 08:00–21:00 · Sat 08:00–18:00 · Sun 113:00–18:00"},{"n":"Dunnes Café","u":"Inside Dunnes Stores","ic":"🍽","c":"#1a6a3a","b":"food","desc":"Café inside Dunnes Stores. Hot meals, sandwiches and snacks."},{"n":"Angry Cherry","u":"Unit M16","ic":"🍒","c":"#c82020","b":"food","desc":"Pop Culture Store","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00"}],"Phones & Tech":[{"n":"Three Mobile","u":"Unit M6","ic":"📱","c":"#c82090","desc":"Mobile phones, SIM plans and broadband."},{"n":"O2","u":"Units M18–19","ic":"📱","c":"#1a3a7a","desc":"Mobile phones, tariffs and accessories."},{"n":"Uberfone","u":"Unit M17A","ic":"📱","c":"#5a5a5a","desc":"Phone repairs, unlocking and accessories."}],"Services":[{"n":"Hays Travel","u":"Unit M16A","ic":"✈️","c":"#c87020","desc":"Package holidays, flights and cruises."},{"n":"Nova Nails","u":"Unit M16","ic":"💅","c":"#c83a7a","b":"new","desc":"Nail bar — manicures, gel nails, pedicures and nail art."},{"n":"The Barber","u":"Unit M14","ic":"✂️","c":"#2a4a6a","desc":"Barber shop — haircuts, fades and beard trims."},{"n":"Beauty Salon","u":"Unit M17B","ic":"💇","c":"#8a3060","desc":"Hair and beauty treatments."},{"n":"Kiosk","u":"Atrium","ic":"🛒","c":"#5a5a5a","desc":"Confectionery and snacks."}]}},"L4":{"label":"Level 4","desc":"Ferryquay Street entrance · Top shopping level","hours":"Mon–Tue 09:00–18:00 · Wed–Fri 09:00–21:00 · Sat 09:00–18:00 · Sun 13:00–18:00","anchors":[],"toilets":{"title":"Toilet facilities — Level 4 (recently refurbished)","items":["🚺 Ladies","🚹 Gents","♿ Accessible","👶 Parent Room & Baby Change"]},"cats":{"Fashion & Accessories":[{"n":"River Island","u":"Unit U3","ic":"👗","c":"#2a2a2a","desc":"On-trend fashion for women, men and children."},{"n":"Pandora","u":"Unit U1","ic":"💍","c":"#c9a84c","desc":"Handcrafted jewellery — charms, bracelets, rings and necklaces.","hours":"Mon–Sat 09:00–18:00 · Sun 13:00–17:30"},{"n":"Timpson","u":"Unit U4A","ic":"🔑","c":"#1a3a7a","desc":"Key cutting, shoe repairs, watch batteries and engraving."}],"Food & Drink":[{"n":"McDonald's","u":"Unit U4","ic":"🍔","c":"#c8a020","b":"food","desc":"Burgers, breakfast, McCafé, kids' meals and desserts.","hours":"Mon–Sat 08:00–21:00 · Sun 10:00–18:00"},{"n":"Hey Boba.","u":"Unit U5","ic":"🧋","c":"#c87060","b":"food","desc":"Bubble tea bar. Boba drinks, fruit teas and desserts","hours":"Opens from 10am Mon-Sat 1pm-6pm Sun"},{"n":"All Sweet Hi","u":"Unit U4B","ic":"🍬","c":"#c83a7a","b":"food","desc":"Pick-and-mix sweets, American candy and confectionery."}],"Facilities":[{"n":"Ladies Toilets","u":"Level 4","ic":"🚺","c":"#4a6480","desc":"Newly refurbished ladies' toilet facilities."},{"n":"Gents Toilets","u":"Level 4","ic":"🚹","c":"#4a6480","desc":"Newly refurbished gents' toilet facilities."},{"n":"Accessible Toilets","u":"Level 4","ic":"♿","c":"#4a6480","desc":"Accessible toilet facilities."},{"n":"Parent Room & Baby Change","u":"Level 4","ic":"👶","c":"#4a6480","desc":"Private parent room with baby changing. Newly refurbished."},{"n":"ATM","u":"Level 4","ic":"🏧","c":"#4a6480","desc":"Cash machine on Level 4."},{"n":"Sensory Room","u":"Level 4 Toilet Lobby","ic":"ℹ️","c":"#4a6480","desc":""}]}}};
+
+/* ═══════════════════════════
+   STATE
+═══════════════════════════ */
+let AF = 'L2'; // active floor
+let AC = 'All'; // active category
+let SQ = ''; // search query
+
+/* ═══════════════════════════
+   CLOCK
+═══════════════════════════ */
+function updateClock() {
+  const n = new Date();
+  const p = x => String(x).padStart(2, '0');
+  document.getElementById('clock').textContent = p(n.getHours()) + ':' + p(n.getMinutes());
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('dateline').textContent = days[n.getDay()] + ' ' + n.getDate() + ' ' + months[n.getMonth()] + ' ' + n.getFullYear();
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+/* ═══════════════════════════
+   RENDER FLOOR TABS
+═══════════════════════════ */
+function renderTabs() {
+  document.getElementById('floorTabs').innerHTML = Object.keys(FLOORS).map(k => {
+    const f = FLOORS[k];
+    return `<div class="ftab${k === AF ? ' active' : ''}" onclick="setFloor('${k}')">
+      <span class="ftab-num">${k}</span>
+      <span class="ftab-lbl">${f.label}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════
+   RENDER CATEGORY PILLS
+═══════════════════════════ */
+function renderPills() {
+  if (SQ) { document.getElementById('pillsRow').innerHTML = ''; return; }
+  const cats = Object.keys(FLOORS[AF].cats);
+  document.getElementById('pillsRow').innerHTML =
+    `<div class="pill${AC === 'All' ? ' active' : ''}" onclick="setCat('All')">All</div>` +
+    cats.map(c => `<div class="pill${AC === c ? ' active' : ''}" onclick="setCat('${c}')">${c}</div>`).join('');
+}
+
+/* ═══════════════════════════
+   BUILD STORE CARD HTML
+═══════════════════════════ */
+function storeCard(s, floorKey, showFloor) {
+  const data = encodeURIComponent(JSON.stringify({ ...s, _fk: floorKey || AF }));
+  return `<div class="store-card" onclick="openModal('${data}')">
+    <div class="store-icon" style="background:${s.c}22;color:${s.c}">${s.ic || '🏪'}</div>
+    <div class="store-info">
+      <div class="store-name">${s.n}</div>
+      <div class="store-unit">${s.u}${showFloor ? `<span class="sr-floor">${floorKey}</span>` : ''}</div>
+      ${s.b ? `<span class="badge b-${s.b}">${s.b === 'anchor' ? 'Anchor' : s.b === 'new' ? 'New' : 'Dining'}</span>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════
+   RENDER MAIN CONTENT
+═══════════════════════════ */
+function renderMain() {
+  if (SQ) { renderSearch(); return; }
+
+  const fl = FLOORS[AF];
+  const cats = Object.keys(fl.cats);
+  const showCats = AC === 'All' ? cats : [AC];
+  let h = '';
+
+  h += `<div class="floor-desc">${fl.desc}</div>`;
+  h += `<div class="hours-strip">🕐 &nbsp;<strong>Centre hours:&nbsp;</strong>${fl.hours}</div>`;
+
+  // Anchor cards
+  if (fl.anchors.length && AC === 'All') {
+    h += `<div class="sec-label">Anchor stores</div><div class="anchor-row">`;
+    fl.anchors.forEach(a => {
+      h += `<div class="anchor-card" onclick="openStoreByName('${a}')">
+        <div class="anchor-name">${a}</div>
+        <div class="anchor-tag">Anchor</div>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  // Store categories
+  showCats.forEach(cat => {
+    h += `<div class="sec-label">${cat}</div><div class="store-grid">`;
+    fl.cats[cat].forEach(s => { h += storeCard(s, AF, false); });
+    h += `</div>`;
+  });
+
+  // Toilet block
+  if (AC === 'All' && fl.toilets) {
+    h += `<div class="toilet-block">
+      <div class="toilet-title">${fl.toilets.title}</div>
+      <div class="toilet-items">${fl.toilets.items.map(i => `<div class="toilet-item">${i}</div>`).join('')}</div>
+    </div>`;
+  }
+
+  // Facilities grid
+  if (AC === 'All') {
+    h += `<div class="sec-label" style="margin-top:16px">Centre facilities</div>
+    <div class="fac-grid">
+      <div class="fac-item"><span class="fac-icon">🚻</span><span class="fac-name">Toilets</span></div>
+      <div class="fac-item"><span class="fac-icon">♿</span><span class="fac-name">Accessibility</span></div>
+      <div class="fac-item"><span class="fac-icon">🅿</span><span class="fac-name">Car Park</span></div>
+      <div class="fac-item"><span class="fac-icon">🏧</span><span class="fac-name">ATM</span></div>
+      <div class="fac-item"><span class="fac-icon">🎁</span><span class="fac-name">Gift Cards</span></div>
+      <div class="fac-item"><span class="fac-icon">📦</span><span class="fac-name">Click & Collect</span></div>
+      <div class="fac-item"><span class="fac-icon">ℹ️</span><span class="fac-name">Info Desk</span></div>
+      <div class="fac-item"><span class="fac-icon">🚗</span><span class="fac-name">Car Valet</span></div>
+    </div>`;
+  }
+
+  document.getElementById('main').innerHTML = h;
+  document.getElementById('main').scrollTop = 0;
+}
+
+/* ═══════════════════════════
+   SEARCH
+═══════════════════════════ */
+function renderSearch() {
+  const q = SQ.toLowerCase().trim();
+  const results = [];
+  Object.entries(FLOORS).forEach(([fk, fv]) => {
+    Object.values(fv.cats).flat().forEach(s => {
+      if (s.n.toLowerCase().includes(q) || (s.desc && s.desc.toLowerCase().includes(q)) || (s.u && s.u.toLowerCase().includes(q))) {
+        results.push({ ...s, _fk: fk });
+      }
+    });
+  });
+
+  let h = `<div class="sr-heading">${results.length} result${results.length !== 1 ? 's' : ''} for "${SQ}"</div>`;
+  if (!results.length) {
+    h += `<div class="no-results"><span class="nr-icon">🔍</span>No stores found for "<strong>${SQ}</strong>".<br>Try a different search term.</div>`;
+  } else {
+    h += `<div class="store-grid">`;
+    results.forEach(s => { h += storeCard(s, s._fk, true); });
+    h += `</div>`;
+  }
+  document.getElementById('main').innerHTML = h;
+  document.getElementById('main').scrollTop = 0;
+}
+
+function clearSearch() {
+  SQ = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearBtn').classList.remove('show');
+  renderPills();
+  renderMain();
+}
+
+document.getElementById('searchInput').addEventListener('input', function () {
+  SQ = this.value.trim();
+  document.getElementById('clearBtn').classList.toggle('show', !!SQ);
+  renderPills();
+  renderMain();
+});
+
+/* ═══════════════════════════
+   STORE DETAIL MODAL
+═══════════════════════════ */
+function openModal(encoded) {
+  const s = JSON.parse(decodeURIComponent(encoded));
+  const fl = FLOORS[s._fk];
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-icon" style="background:${s.c}22;color:${s.c}">${s.ic || '🏪'}</div>
+    <div class="modal-name">${s.n}</div>
+    <div class="modal-floor">${fl ? fl.label : s._fk} &nbsp;·&nbsp; ${s.u}</div>
+    <div class="modal-rows">
+      ${s.desc ? `<div class="modal-row">
+        <span class="modal-row-icon">📋</span>
+        <span class="modal-row-text">${s.desc}</span>
+      </div>` : ''}
+      <div class="modal-row">
+        <span class="modal-row-icon">🕐</span>
+        <span class="modal-row-text"><strong>Opening hours</strong>${s.hours || (fl ? fl.hours : 'See centre hours')}</span>
+      </div>
+      <div class="modal-row">
+        <span class="modal-row-icon">📍</span>
+        <span class="modal-row-text"><strong>Location</strong>${fl ? fl.label : s._fk} — Unit ${s.u}</span>
+      </div>
+      ${s.b === 'food' ? `<div class="modal-row"><span class="modal-row-icon">🍽</span><span class="modal-row-text">Dining venue — food and drink available</span></div>` : ''}
+      ${s.b === 'new' ? `<div class="modal-row"><span class="modal-row-icon">🆕</span><span class="modal-row-text">Recently opened at Foyleside Shopping Centre</span></div>` : ''}
+    </div>`;
+  document.getElementById('modal-backdrop').classList.add('open');
+}
+
+function openStoreByName(name) {
+  let found = null, fk = null;
+  Object.entries(FLOORS).forEach(([k, f]) => {
+    Object.values(f.cats).flat().forEach(s => { if (s.n === name) { found = s; fk = k; } });
+  });
+  if (found) openModal(encodeURIComponent(JSON.stringify({ ...found, _fk: fk })));
+}
+
+function closeModal() {
+  document.getElementById('modal-backdrop').classList.remove('open');
+}
+
+function backdropClick(e) {
+  if (e.target === document.getElementById('modal-backdrop')) closeModal();
+}
+
+/* ═══════════════════════════
+   FLOOR & CATEGORY SWITCHING
+═══════════════════════════ */
+function setFloor(f) { AF = f; AC = 'All'; renderTabs(); renderPills(); renderMain(); }
+function setCat(c)   { AC = c; renderPills(); renderMain(); }
+
+/* ═══════════════════════════
+   IDLE RESET — 3 MINUTES
+═══════════════════════════ */
+let idleTimer;
+function resetIdle() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => { clearSearch(); setFloor('L2'); closeModal(); }, 180000);
+}
+document.getElementById('app').addEventListener('touchstart', resetIdle, { passive: true });
+document.getElementById('app').addEventListener('mousedown', resetIdle);
+resetIdle();
+
+/* ═══════════════════════════
+   INIT
+═══════════════════════════ */
+renderTabs();
+renderPills();
+renderMain();
+
+</script>
+</body>
+</html>
